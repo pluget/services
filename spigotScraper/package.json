@@ -1,0 +1,28 @@
+{
+  "name": "waitForBotProtection",
+  "version": "0.1.0",
+  "description": "When bot protection is activated on CloudFlare protected website. Wait until it is gone.",
+  "main": "dist/index.js",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "puppeteer": "^19.2.0",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-adblocker": "^2.13.5",
+    "puppeteer-extra-plugin-block-resources": "^2.4.2",
+    "puppeteer-extra-plugin-recaptcha": "^3.6.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "yargs": "^17.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@types/yargs": "^17.0.13",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.4"
+  }
+}
