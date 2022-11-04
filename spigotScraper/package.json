@@ -11,6 +11,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@sentry/node": "^7.17.4",
+    "@sentry/tracing": "^7.17.4",
     "puppeteer": "^19.2.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-adblocker": "^2.13.5",

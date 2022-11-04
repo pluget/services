@@ -10,6 +10,19 @@ import BlockResourcesPlugin from "puppeteer-extra-plugin-block-resources";
 import yargs from "yargs";
 import { readFile } from "fs";
 import path from "path";
+import Sentry from "@sentry/node";
+import Tracing from "@sentry/tracing";
+import config from "./config";
+
+Sentry.init({
+  dsn: config.sentryDns,
+  tracesSampleRate: 1.0,
+});
+
+const transaction = Sentry.startTransaction({
+  op: "test",
+  name: "My First Test Transaction",
+});
 
 puppeteer.use(StealthPlugin());
 puppeteer.use(
