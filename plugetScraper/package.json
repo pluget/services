@@ -1,7 +1,7 @@
 {
-  "name": "waitForBotProtection",
+  "name": "plugetScraper",
   "version": "0.1.0",
-  "description": "When bot protection is activated on CloudFlare protected website. Wait until it is gone.",
+  "description": "Scraping both bukkit and spigot",
   "main": "dist/index.js",
   "license": "GPL-3.0-or-later",
   "scripts": {
