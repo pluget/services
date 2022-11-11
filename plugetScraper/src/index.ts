@@ -111,6 +111,7 @@ if (require.main === module) {
     main();
   } catch (e) {
     Sentry.captureException(e);
+    console.error(e);
   } finally {
     transaction.finish();
   }
