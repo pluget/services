@@ -188,7 +188,6 @@ async function main(versions: string[]) {
     "I have the following version(s):\n" +
     versions.join("\n") +
     "\nAll of these version(s) converted to meet the Semantic Versioning standard:\n";
-  console.log(prompt);
   const response = await openai.createCompletion({
     model: "text-davinci-002",
     prompt,
@@ -196,8 +195,6 @@ async function main(versions: string[]) {
     max_tokens: 1000,
     stop: ["==="],
   });
-
-  console.log(response.data);
 }
 
 if (require.main === module) {
