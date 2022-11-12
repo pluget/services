@@ -1,8 +1,3 @@
-import { DEFAULT_INTERCEPT_RESOLUTION_PRIORITY } from "puppeteer";
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
-import BlockResourcesPlugin from "puppeteer-extra-plugin-block-resources";
 import yargs from "yargs";
 import { readFile } from "fs";
 import path from "path";
@@ -59,28 +54,6 @@ const HEADMORE = argv.h;
 const FILE = argv.f;
 
 export async function main() {
-  puppeteer.use(StealthPlugin());
-  puppeteer.use(
-    AdblockerPlugin({
-      blockTrackers: true,
-      blockTrackersAndAnnoyances: true,
-      interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
-    })
-  );
-  puppeteer.use(
-    BlockResourcesPlugin({
-      blockedTypes: new Set([
-        "stylesheet",
-        "media",
-        "texttrack",
-        "eventsource",
-        "websocket",
-        "manifest",
-        "other",
-      ]),
-      interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
-    })
-  );
   const file: string = await new Promise((resolve, reject) => {
     readFile(
       path.resolve(__dirname, FILE),
@@ -94,7 +67,6 @@ export async function main() {
   const data = JSON.parse(file);
   console.log("Launching browsers...");
   const pages = await launchBrowsers(
-    puppeteer,
     NUMBER_OF_BROWSERS,
     CHROMIUM_PATH,
     HEADMORE

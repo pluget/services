@@ -1,12 +1,37 @@
 import { Page } from "puppeteer";
-import { PuppeteerExtra } from "puppeteer-extra";
+import { DEFAULT_INTERCEPT_RESOLUTION_PRIORITY } from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
+import BlockResourcesPlugin from "puppeteer-extra-plugin-block-resources";
 
 export default async function launchBrowsers(
-  puppeteer: PuppeteerExtra,
   numberOfBrowsers: number,
   CHROMIUM_PATH: string,
   HEADLESS: boolean
 ): Promise<Page[]> {
+  puppeteer.use(StealthPlugin());
+  puppeteer.use(
+    AdblockerPlugin({
+      blockTrackers: true,
+      blockTrackersAndAnnoyances: true,
+      interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
+    })
+  );
+  puppeteer.use(
+    BlockResourcesPlugin({
+      blockedTypes: new Set([
+        "stylesheet",
+        "media",
+        "texttrack",
+        "eventsource",
+        "websocket",
+        "manifest",
+        "other",
+      ]),
+      interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
+    })
+  );
   const pages = [];
   const pagesToAwait = [];
   for (let i = 0; i < numberOfBrowsers; i++) {
