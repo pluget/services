@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import { Configuration, OpenAIApi } from "openai";
 import path from "path";
+import semver, { SemVer } from "semver";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 
@@ -181,7 +182,7 @@ All of these version(s) converted to meet the Semantic Versioning standard:
 ===
 `;
 
-async function main(versions: string[]) {
+export default async function main(versions: string[]): Promise<string[]> {
   const prompt =
     semVerExplainPrompt +
     semVerExamplesPrompt +
@@ -194,6 +195,30 @@ async function main(versions: string[]) {
     temperature: 0,
     max_tokens: 1000,
     stop: ["==="],
+  });
+  const responseText: string = response.data.choices[0].text || "";
+  const results: string[] = responseText.split("\n").map((v) => v.trim());
+  return results.map((result) => {
+    const parsedSemVer = semver.parse(result);
+    if (parsedSemVer) {
+      if (parsedSemVer.build.length > 0) {
+        return parsedSemVer.format() + "+" + parsedSemVer.build.join(".");
+      } else {
+        return parsedSemVer.format();
+      }
+    } else {
+      const cleanedSemVer = semver.clean(result);
+      if (cleanedSemVer) {
+        return cleanedSemVer;
+      } else {
+        const coercedSemVer = semver.coerce(result);
+        if (coercedSemVer) {
+          return coercedSemVer.format();
+        } else {
+          return "0.0.0";
+        }
+      }
+    }
   });
 }
 
@@ -227,5 +252,7 @@ if (require.main === module) {
     "2.0.1-b192",
     "2.0.1-b177",
     "2.0.1",
-  ]);
+  ]).then((results) => {
+    console.log(results);
+  });
 }
