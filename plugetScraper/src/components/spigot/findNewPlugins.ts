@@ -3,82 +3,99 @@ import PluginData from "./pluginData";
 import sendRequest from "./sendRequest";
 import extractDataFromUrl from "./extractDataFromUrl";
 
+async function* getListOfPlugins(
+  page: Page,
+  alreadyExistingPlugins: Record<number, string>
+) {
+  let numberOfPluginsAlreadyInRepository = 0;
+  let numberOfPages = 1;
+  let i = 1;
+  do {
+    await sendRequest(
+      page,
+      `https://www.spigotmc.org/resources/?order=resource_date&page=${i}`
+    );
+    if (i === 1) {
+      numberOfPages = await page.evaluate(() => {
+        const element = document.querySelector("nav > a.gt999");
+        if (element) {
+          return parseInt(element.textContent || "");
+        }
+        return 1;
+      });
+    }
+    let urlsOfPluginsOnPage = await page.evaluate(() => {
+      const urlsOfPlugins: string[] = [];
+      const elements = document.querySelectorAll(
+        "ol.resourceList > li.resourceListItem > div > div > h3.title > a"
+      );
+      elements.forEach((element) => {
+        urlsOfPlugins.push(
+          "https://www.spigotmc.org/" + element.getAttribute("href") || ""
+        );
+      });
+      return urlsOfPlugins;
+    });
+    urlsOfPluginsOnPage = urlsOfPluginsOnPage.filter((plugin) => {
+      const pluginSplitted = plugin.split(".");
+      const pluginId = parseInt(
+        pluginSplitted[pluginSplitted.length - 1].slice(0, -1)
+      );
+      if (alreadyExistingPlugins[pluginId]) {
+        numberOfPluginsAlreadyInRepository += 1;
+        return false;
+      }
+      numberOfPluginsAlreadyInRepository = 0;
+      return true;
+    });
+    yield urlsOfPluginsOnPage;
+    if (numberOfPluginsAlreadyInRepository > 20) {
+      return { msg: "Reached duplicate plugins" };
+    }
+    i++;
+  } while (i <= numberOfPages);
+  return { msg: "Reached end of the spigot website" };
+}
+
 export default async function findNewPlugins(
   pages: Page[],
-  data: Record<number, string>
+  alreadyExistingPlugins: Record<number, string>
 ) {
   const page = pages[pages.length - 1];
-  async function* getPlugins(page: Page) {
-    let numberOfPluginsAlreadyInRepository = 0;
-    let numberOfPages = 1;
-    let i = 1;
-    do {
-      await sendRequest(
-        page,
-        `https://www.spigotmc.org/resources/?order=resource_date&page=${i}`
-      );
-      if (i === 1) {
-        numberOfPages = await page.evaluate(() => {
-          const element = document.querySelector("nav > a.gt999");
-          if (element) {
-            return parseInt(element.textContent || "");
-          }
-          return 1;
-        });
-      }
-      let pluginsOnPage = await page.evaluate(() => {
-        const plugins: string[] = [];
-        const elements = document.querySelectorAll(
-          "ol.resourceList > li.resourceListItem > div > div > h3.title > a"
-        );
-        elements.forEach((element) => {
-          plugins.push(
-            "https://www.spigotmc.org/" + element.getAttribute("href") || ""
-          );
-        });
-        return plugins;
-      });
-      pluginsOnPage = pluginsOnPage.filter((plugin) => {
-        const pluginSplitted = plugin.split(".");
-        const pluginId = parseInt(
-          pluginSplitted[pluginSplitted.length - 1].slice(0, -1)
-        );
-        if (data[pluginId]) {
-          numberOfPluginsAlreadyInRepository += 1;
-          return false;
-        }
-        numberOfPluginsAlreadyInRepository = 0;
-        return true;
-      });
-      yield pluginsOnPage;
-      if (numberOfPluginsAlreadyInRepository > 20) {
-        return { msg: "Reached duplicate plugins" };
-      }
-      i++;
-    } while (i <= numberOfPages);
-    return { msg: "Reached end of the spigot website" };
-  }
 
-  const getPluginsInstance = getPlugins(page);
+  const getListOfPluginsInstance = getListOfPlugins(
+    page,
+    alreadyExistingPlugins
+  );
   const pluginsData: PluginData[] = [];
 
-  for await (const plugins of getPluginsInstance) {
+  // Iterate over the list of plugins pages
+  for await (const listOfUrlsOfPlugins of getListOfPluginsInstance) {
     const pagesToAwait: Promise<void>[] = [];
     let i = 0;
-    for (const plugin of plugins) {
-      const pageNumber = i % (pages.length - 1);
-      if (pageNumber === 0) {
+    for (const pluginUrl of listOfUrlsOfPlugins) {
+      const currentPage = i % (pages.length - 1);
+      if (currentPage === 0) {
         await Promise.all(pagesToAwait);
       }
-      //TODO: Check if plugin is already in the repository, after pushing, add it to the repository
-      async function getPluginData() {
-        const page = pages[pageNumber];
-        const pluginId = parseInt(plugin.split(".").pop() || "");
-        const pluginData = await extractDataFromUrl(page, plugin, pluginId);
-        pluginsData.push(pluginData);
-        console.log(pluginsData[pluginsData.length - 1]);
+      async function getPluginData(
+        pages: Page[],
+        currentPage: number,
+        pluginUrl: string
+      ) {
+        const page = pages[currentPage];
+        const pluginId = parseInt(pluginUrl.split(".").pop() || "-1");
+        if (!alreadyExistingPlugins[pluginId]) {
+          const pluginData = await extractDataFromUrl(
+            page,
+            pluginUrl,
+            pluginId
+          );
+          pluginsData.push(pluginData);
+          alreadyExistingPlugins[pluginId] = pluginUrl;
+        }
       }
-      pagesToAwait.push(getPluginData());
+      pagesToAwait.push(getPluginData(pages, currentPage, pluginUrl));
       await new Promise((resolve) => setTimeout(resolve, 500));
       i++;
     }
