@@ -60,7 +60,7 @@ async function* getListOfPlugins(
 export default async function findNewPlugins(
   pages: Page[],
   alreadyExistingPlugins: Record<number, string>
-) {
+): Promise<PluginData[]> {
   const page = pages[pages.length - 1];
 
   const getListOfPluginsInstance = getListOfPlugins(
