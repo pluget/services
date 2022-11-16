@@ -1,7 +1,7 @@
 import yargs from "yargs";
 import { readFile } from "fs";
 import path from "path";
-import Sentry from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import "@sentry/tracing";
 import config from "./config";
 import launchBrowsers from "./components/launchBrowsers";
