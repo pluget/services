@@ -4,6 +4,7 @@ export default interface PluginData {
   name?: string;
   description?: string;
   authors?: string[];
+  icon?: string;
   iconUrl?: string;
   numberOfDownloads?: number;
   rating?: number;
