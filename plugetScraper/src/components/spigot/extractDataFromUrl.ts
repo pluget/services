@@ -1,6 +1,11 @@
+import * as dotenv from "dotenv";
+import path from "path";
 import { Page } from "puppeteer";
+import urlToCid from "../urlToCid";
 import PluginData from "./pluginData";
 import sendRequest from "./sendRequest";
+
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 export default async function extractDataFromUrl(
   page: Page,
@@ -86,6 +91,15 @@ export default async function extractDataFromUrl(
       ),
     };
   });
+  let iconCid: string | undefined = undefined;
+  if (additionalData.iconUrl) {
+    iconCid = await urlToCid(
+      additionalData.iconUrl,
+      process.env.NFT_STORAGE_API_KEY || "",
+      page
+    );
+    Object.assign(data, { iconCid: iconCid });
+  }
   Object.assign(data, additionalData);
   return data;
 }

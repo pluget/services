@@ -3,7 +3,7 @@ import { Configuration, OpenAIApi } from "openai";
 import path from "path";
 import semver, { SemVer } from "semver";
 
-dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
