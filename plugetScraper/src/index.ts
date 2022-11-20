@@ -44,6 +44,12 @@ const argv = yargs(process.argv.slice(2))
       type: "string",
       default: "/tmp/pluget/spigot.json",
     },
+    d: {
+      alias: "directory",
+      describe: "Directory to save the plugins",
+      type: "string",
+      default: "../../../repository/",
+    },
   })
   .parseSync();
 

@@ -92,6 +92,7 @@ export default async function findNewPlugins(
             pluginId
           );
           pluginsData.push(pluginData);
+          console.log(pluginData);
           alreadyExistingPlugins[pluginId] = pluginUrl;
         }
       }
