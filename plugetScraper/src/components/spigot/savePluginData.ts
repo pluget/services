@@ -1,7 +1,7 @@
-import { default as PluginDataSpigot } from "./spigot/pluginData";
+import { default as PluginDataSpigot } from "./pluginData";
 import fs from "fs";
 
-export async function spigotSavePluginData(
+export async function savePluginData(
   pluginData: PluginDataSpigot,
   repositoryPath: string,
   pluginName: string
