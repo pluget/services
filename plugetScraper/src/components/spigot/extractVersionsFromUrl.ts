@@ -1,6 +1,6 @@
 import { Page } from "puppeteer";
 import launchBrowsers from "../launchBrowsers";
-import { default as PluginVersions, version } from "./pluginVersions";
+import { default as pluginVersions, pluginVersion } from "./pluginVersions";
 import sendRequest from "./sendRequest";
 
 export default async function extractVersionsFromUrl(
@@ -8,16 +8,14 @@ export default async function extractVersionsFromUrl(
   url: string,
   pluginId: number,
   supportedVersions: string[]
-): Promise<PluginVersions> {
+): Promise<pluginVersions> {
   await sendRequest(page, url);
-  const data: PluginVersions = {
+  const data: pluginVersions = {
     id: pluginId,
-    sourceUrl: url,
-    supportedVersions: supportedVersions,
     versions: [],
   };
   const additionalData = await page.$eval("#content", (E) => {
-    const versions: version[] = [];
+    const versions: { name: string; version: pluginVersion }[] = [];
     const table = E.querySelector("table.dataTable.resourceHistory > tbody");
     if (table) {
       const rows = Array.from(table.querySelectorAll("tr"));
@@ -60,16 +58,22 @@ export default async function extractVersionsFromUrl(
         );
         versions.push({
           name: version,
-          releaseDate,
-          downloadUrl,
-          rating,
-          numberOfVotes,
-          numberOfDownloads,
+          version: {
+            downloadUrl,
+            numberOfDownloads,
+            rating,
+            numberOfVotes,
+            releaseDate,
+          },
         });
       }
     }
     return versions;
   });
+  for (const version of additionalData) {
+    Object.assign(version, { sourceUrl: url });
+    Object.assign(version, { supportedVersions: supportedVersions });
+  }
   Object.assign(data, { versions: additionalData });
   return data;
 }

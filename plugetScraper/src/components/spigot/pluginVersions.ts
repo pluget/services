@@ -1,15 +1,14 @@
-export interface version {
-  name: string;
-  releaseDate: number;
+export interface pluginVersion {
+  sourceUrl?: string;
   downloadUrl: string;
+  numberOfDownloads: number;
   rating: number;
   numberOfVotes: number;
-  numberOfDownloads: number;
+  releaseDate: number;
+  supportedVersions?: string[];
 }
 
 export default interface pluginVersions {
   readonly id: number;
-  readonly sourceUrl: string;
-  supportedVersions: string[];
-  versions: version[];
+  versions: { name: string; version: pluginVersion }[];
 }
