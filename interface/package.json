@@ -1,0 +1,12 @@
+{
+  "name": "interface (międzymordzie)",
+  "version": "1.0.0",
+  "description": "międzymordzie for the database (pluget/repository)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "h4xx0r a.k.a. mbledkowski",
+  "license": "GPL-3.0-or-later"
+}
