@@ -1,5 +1,5 @@
 {
-  "name": "plugetScraper",
+  "name": "scraper",
   "version": "0.1.0",
   "description": "Scraping both bukkit and spigot",
   "main": "dist/index.js",
