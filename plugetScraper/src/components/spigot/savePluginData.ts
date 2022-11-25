@@ -1,14 +1,22 @@
 import PluginData from "./pluginData";
 import { pluginVersion as PluginVersion } from "./pluginVersions";
-import fs from "fs";
+import fs from "fs-extra";
 
 export async function savePluginData(
   pluginData: PluginData,
   repositoryPath: string,
   pluginName: string
 ) {
-  const pluginDataPath = `${repositoryPath}/${pluginName[0]}/${pluginName}/spigot.json`;
-  fs.writeFileSync(pluginDataPath, JSON.stringify(pluginData, null, 2));
+  let pluginDataPath = `${repositoryPath}/${pluginName[0]}/${pluginName}`;
+  if (fs.existsSync(pluginDataPath)) {
+    pluginDataPath = `${repositoryPath}/${pluginName[0]}/${pluginName}-${pluginData.id}`;
+  }
+  await fs.ensureDir(pluginDataPath);
+
+  fs.writeFile(
+    pluginDataPath + "/spigot.json",
+    JSON.stringify(pluginData, null, 2)
+  );
 }
 
 export async function savePluginVersionData(

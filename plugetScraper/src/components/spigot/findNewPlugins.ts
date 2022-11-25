@@ -86,14 +86,18 @@ export default async function findNewPlugins(
         const page = pages[currentPage];
         const pluginId = parseInt(pluginUrl.split(".").pop() || "-1");
         if (!alreadyExistingPlugins[pluginId]) {
-          const pluginData = await extractDataFromUrl(
-            page,
-            pluginUrl,
-            pluginId
-          );
-          pluginsData.push(pluginData);
-          console.log(pluginData);
-          alreadyExistingPlugins[pluginId] = pluginUrl;
+          try {
+            const pluginData = await extractDataFromUrl(
+              page,
+              pluginUrl,
+              pluginId
+            );
+            pluginsData.push(pluginData);
+            console.log(pluginData);
+            alreadyExistingPlugins[pluginId] = pluginUrl;
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
       pagesToAwait.push(getPluginData(pages, currentPage, pluginUrl));

@@ -6,6 +6,8 @@ import "@sentry/tracing";
 import config from "./config";
 import launchBrowsers from "./components/launchBrowsers";
 import findNewPlugins from "./components/spigot/findNewPlugins";
+import { savePluginData } from "./components/spigot/savePluginData";
+import unidecode from "unidecode";
 
 Sentry.init({
   dsn: config.sentryDsn,
@@ -77,7 +79,17 @@ export async function main() {
     CHROMIUM_PATH,
     HEADMORE
   );
-  await findNewPlugins(pages, data);
+  const newPlugins = await findNewPlugins(pages, data);
+  for (const plugin of newPlugins) {
+    await savePluginData(
+      plugin,
+      argv.d,
+      unidecode(plugin.name || "")
+        .toLowerCase()
+        .replace(/ /g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+    );
+  }
 }
 
 if (require.main === module) {

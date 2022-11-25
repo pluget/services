@@ -3,11 +3,14 @@ lockfileVersion: 5.4
 specifiers:
   '@sentry/node': ^7.17.4
   '@sentry/tracing': ^7.17.4
+  '@types/fs-extra': ^9.0.13
   '@types/mime': ^3.0.1
   '@types/node': ^18.11.9
   '@types/semver': ^7.3.13
+  '@types/unidecode': ^0.1.1
   '@types/yargs': ^17.0.13
   dotenv: ^16.0.3
+  fs-extra: ^10.1.0
   mime: ^3.0.0
   nft.storage: ^7.0.0
   openai: ^3.1.0
@@ -20,12 +23,14 @@ specifiers:
   semver: ^7.3.8
   ts-node-dev: ^2.0.0
   typescript: ^4.8.4
+  unidecode: ^0.1.8
   yargs: ^17.6.0
 
 dependencies:
   '@sentry/node': 7.20.0
   '@sentry/tracing': 7.20.0
   dotenv: 16.0.3
+  fs-extra: 10.1.0
   mime: 3.0.0
   nft.storage: 7.0.0
   openai: 3.1.0
@@ -36,12 +41,15 @@ dependencies:
   puppeteer-extra-plugin-recaptcha: 3.6.6_puppeteer-extra@3.3.4
   puppeteer-extra-plugin-stealth: 2.11.1_puppeteer-extra@3.3.4
   semver: 7.3.8
+  unidecode: 0.1.8
   yargs: 17.6.2
 
 devDependencies:
+  '@types/fs-extra': 9.0.13
   '@types/mime': 3.0.1
   '@types/node': 18.11.9
   '@types/semver': 7.3.13
+  '@types/unidecode': 0.1.1
   '@types/yargs': 17.0.13
   ts-node-dev: 2.0.0_wup25etrarvlqkprac7h35hj7u
   typescript: 4.9.3
@@ -332,6 +340,12 @@ packages:
     resolution: {integrity: sha512-I6iHRQJSTZ+gYt2IxdH2RRAMvcUyK8v5Ig7fHQR0IwUNYP7hz9+cziBVIKxLCO6XI7fiyRsNOWObfl3/4Js2Lg==}
     dev: false
 
+  /@types/fs-extra/9.0.13:
+    resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
+    dependencies:
+      '@types/node': 18.11.9
+    dev: true
+
   /@types/har-format/1.2.9:
     resolution: {integrity: sha512-rffW6MhQ9yoa75bdNi+rjZBAvu2HhehWJXlhuWXnWdENeuKe82wUgAwxYOb7KRKKmxYN+D/iRKd2NDQMLqlUmg==}
     dev: false
@@ -381,6 +395,10 @@ packages:
 
   /@types/strip-json-comments/0.0.30:
     resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
+    dev: true
+
+  /@types/unidecode/0.1.1:
+    resolution: {integrity: sha512-ReYnWajSY+QnZk5dBpSztek+kHUtpHJkf0pSZBx2ZVIxcSBkRLY7m0caPwVKXC6WjE65G2fVU84EpiFbdJVDuQ==}
     dev: true
 
   /@types/yargs-parser/21.0.0:
@@ -2564,6 +2582,11 @@ packages:
     dependencies:
       buffer: 5.7.1
       through: 2.3.8
+    dev: false
+
+  /unidecode/0.1.8:
+    resolution: {integrity: sha512-SdoZNxCWpN2tXTCrGkPF/0rL2HEq+i2gwRG1ReBvx8/0yTzC3enHfugOf8A9JBShVwwrRIkLX0YcDUGbzjbVCA==}
+    engines: {node: '>= 0.4.12'}
     dev: false
 
   /universalify/2.0.0:
