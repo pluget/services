@@ -11,48 +11,52 @@ async function* getListOfPlugins(
   let numberOfPages = 1;
   let i = 1;
   do {
-    await sendRequest(
-      page,
-      `https://www.spigotmc.org/resources/?order=resource_date&page=${i}`
-    );
-    if (i === 1) {
-      numberOfPages = await page.evaluate(() => {
-        const element = document.querySelector("nav > a.gt999");
-        if (element) {
-          return parseInt(element.textContent || "");
-        }
-        return 1;
-      });
-    }
-    let urlsOfPluginsOnPage = await page.evaluate(() => {
-      const urlsOfPlugins: string[] = [];
-      const elements = document.querySelectorAll(
-        "ol.resourceList > li.resourceListItem > div > div > h3.title > a"
+    try {
+      await sendRequest(
+        page,
+        `https://www.spigotmc.org/resources/?order=resource_date&page=${i}`
       );
-      elements.forEach((element) => {
-        urlsOfPlugins.push(
-          "https://www.spigotmc.org/" + element.getAttribute("href") || ""
-        );
-      });
-      return urlsOfPlugins;
-    });
-    urlsOfPluginsOnPage = urlsOfPluginsOnPage.filter((plugin) => {
-      const pluginSplitted = plugin.split(".");
-      const pluginId = parseInt(
-        pluginSplitted[pluginSplitted.length - 1].slice(0, -1)
-      );
-      if (alreadyExistingPlugins[pluginId]) {
-        numberOfPluginsAlreadyInRepository += 1;
-        return false;
+      if (i === 1) {
+        numberOfPages = await page.evaluate(() => {
+          const element = document.querySelector("nav > a.gt999");
+          if (element) {
+            return parseInt(element.textContent || "");
+          }
+          return 1;
+        });
       }
-      numberOfPluginsAlreadyInRepository = 0;
-      return true;
-    });
-    yield urlsOfPluginsOnPage;
-    if (numberOfPluginsAlreadyInRepository > 20) {
-      return { msg: "Reached duplicate plugins" };
+      let urlsOfPluginsOnPage = await page.evaluate(() => {
+        const urlsOfPlugins: string[] = [];
+        const elements = document.querySelectorAll(
+          "ol.resourceList > li.resourceListItem > div > div > h3.title > a"
+        );
+        elements.forEach((element) => {
+          urlsOfPlugins.push(
+            "https://www.spigotmc.org/" + element.getAttribute("href") || ""
+          );
+        });
+        return urlsOfPlugins;
+      });
+      urlsOfPluginsOnPage = urlsOfPluginsOnPage.filter((plugin) => {
+        const pluginSplitted = plugin.split(".");
+        const pluginId = parseInt(
+          pluginSplitted[pluginSplitted.length - 1].slice(0, -1)
+        );
+        if (alreadyExistingPlugins[pluginId]) {
+          numberOfPluginsAlreadyInRepository += 1;
+          return false;
+        }
+        numberOfPluginsAlreadyInRepository = 0;
+        return true;
+      });
+      yield urlsOfPluginsOnPage;
+      if (numberOfPluginsAlreadyInRepository > 20) {
+        return { msg: "Reached duplicate plugins" };
+      }
+      i++;
+    } catch (e) {
+      console.log(e);
     }
-    i++;
   } while (i <= numberOfPages);
   return { msg: "Reached end of the spigot website" };
 }
