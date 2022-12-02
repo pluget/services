@@ -190,7 +190,7 @@ export default async function main(versions: string[]): Promise<string[]> {
     versions.join("\n") +
     "\nAll of these version(s) converted to meet the Semantic Versioning standard:\n";
   const response = await openai.createCompletion({
-    model: "text-davinci-002",
+    model: "text-davinci-003",
     prompt,
     temperature: 0,
     max_tokens: 1000,
