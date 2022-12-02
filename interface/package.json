@@ -2,7 +2,7 @@
   "name": "interface (międzymordzie)",
   "version": "1.0.0",
   "description": "międzymordzie for the database (pluget/repository)",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +10,8 @@
   "author": "h4xx0r a.k.a. mbledkowski",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "fs-extra": "^10.1.0"
+    "fs-extra": "^10.1.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",

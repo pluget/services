@@ -4,9 +4,11 @@ specifiers:
   '@types/fs-extra': ^9.0.13
   '@types/node': ^18.11.9
   fs-extra: ^10.1.0
+  lodash: ^4.17.21
 
 dependencies:
   fs-extra: 10.1.0
+  lodash: 4.17.21
 
 devDependencies:
   '@types/fs-extra': 9.0.13
@@ -43,6 +45,10 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.10
+    dev: false
+
+  /lodash/4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
 
   /universalify/2.0.0:
