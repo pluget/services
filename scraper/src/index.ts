@@ -7,7 +7,7 @@ import config from "./config";
 import launchBrowsers from "./components/launchBrowsers";
 import findNewPlugins from "./components/spigot/findNewPlugins";
 import { savePluginData } from "./components/spigot/savePluginData";
-import unidecode from "unidecode";
+import nameToStdName from "./components/nameToStdName";
 
 Sentry.init({
   dsn: config.sentryDsn,
@@ -84,10 +84,8 @@ export async function main() {
     await savePluginData(
       plugin,
       argv.d,
-      unidecode(plugin.name || "")
-        .toLowerCase()
-        .replace(/ /g, "-")
-        .replace(/[^a-z0-9-]/g, "")
+      plugin.name || "",
+      plugin.description || ""
     );
   }
 }

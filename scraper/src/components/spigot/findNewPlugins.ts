@@ -6,7 +6,7 @@ import extractDataFromUrl from "./extractDataFromUrl";
 async function* getListOfPlugins(
   page: Page,
   alreadyExistingPlugins: Record<number, string>
-) {
+): AsyncGenerator<string[]> {
   let numberOfPluginsAlreadyInRepository = 0;
   let numberOfPages = 1;
   let i = 1;
@@ -25,7 +25,7 @@ async function* getListOfPlugins(
           return 1;
         });
       }
-      let urlsOfPluginsOnPage = await page.evaluate(() => {
+      let urlsOfPluginsOnPage: string[] = await page.evaluate(() => {
         const urlsOfPlugins: string[] = [];
         const elements = document.querySelectorAll(
           "ol.resourceList > li.resourceListItem > div > div > h3.title > a"
@@ -53,10 +53,10 @@ async function* getListOfPlugins(
       if (numberOfPluginsAlreadyInRepository > 20) {
         return { msg: "Reached duplicate plugins" };
       }
-      i++;
     } catch (e) {
       console.log(e);
     }
+    i++;
   } while (i <= numberOfPages);
   return { msg: "Reached end of the spigot website" };
 }
@@ -67,7 +67,7 @@ export default async function findNewPlugins(
 ): Promise<PluginData[]> {
   const page = pages[pages.length - 1];
 
-  const getListOfPluginsInstance = getListOfPlugins(
+  const getListOfPluginsInstance: AsyncGenerator<string[]> = getListOfPlugins(
     page,
     alreadyExistingPlugins
   );

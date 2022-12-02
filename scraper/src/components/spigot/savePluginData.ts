@@ -1,16 +1,27 @@
 import PluginData from "./pluginData";
 import { pluginVersion as PluginVersion } from "./pluginVersions";
 import fs from "fs-extra";
+import nameToStdName from "../nameToStdName";
 
 export async function savePluginData(
   pluginData: PluginData,
   repositoryPath: string,
-  pluginName: string
+  pluginName: string,
+  pluginDescription: string
 ) {
-  let pluginDataPath = `${repositoryPath}/${pluginName[0]}/${pluginName}`;
-  if (fs.existsSync(pluginDataPath)) {
-    pluginDataPath = `${repositoryPath}/${pluginName[0]}/${pluginName}-${pluginData.id}`;
-  }
+  const duplicateNames = [];
+  let pluginStdName = "";
+  let pluginDataPath = "";
+  do {
+    pluginStdName = await nameToStdName(
+      pluginName,
+      pluginDescription,
+      duplicateNames
+    );
+    duplicateNames.push(pluginStdName);
+    pluginDataPath = `${repositoryPath}/${pluginStdName[0]}/${pluginStdName}`;
+  } while (fs.existsSync(pluginDataPath));
+
   await fs.ensureDir(pluginDataPath);
 
   fs.writeFile(
