@@ -100,6 +100,7 @@ if (require.main === module) {
   } catch (e) {
     Sentry.captureException(e);
     console.error(e);
+    console.error("Reported to Sentry");
   } finally {
     transaction.finish();
   }

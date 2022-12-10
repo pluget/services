@@ -41,7 +41,7 @@ export default async function launchBrowsers(
         headless: HEADLESS,
       });
 
-      let pages = await browser.pages();
+      const pages = await browser.pages();
       pages[0].close();
       return await browser.newPage();
     }

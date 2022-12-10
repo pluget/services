@@ -55,6 +55,7 @@ async function* getListOfPlugins(
       }
     } catch (e) {
       console.log(e);
+      i--;
     }
     i++;
   } while (i <= numberOfPages);
