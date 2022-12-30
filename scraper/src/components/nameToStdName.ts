@@ -47,13 +47,6 @@ E: ddd
 
 S: different-dimension-difficulty
 ===
-T: Scoreboard
-D: Plugin 1.8.8
-
-E: scoreboard
-
-S: scoreboard-1-8-8
-===
 `;
   const alreadyUsedNames = previousNames.map(
     (name) => `"${name}"` // wrap in quotes
