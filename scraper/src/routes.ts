@@ -1,14 +1,21 @@
-import { Dataset, createPlaywrightRouter } from "crawlee";
+import { Dataset, createPlaywrightRouter, EnqueueLinksOptions } from "crawlee";
+import { BatchAddRequestsResult } from "@crawlee/types";
 import * as dotenv from "dotenv";
+import { Page } from "playwright";
 import urlToCid from "./components/urlToCid.js";
+import PluginData from "./interfaces/spigot/pluginData.js";
+import { savePluginData } from "./components/spigot/savePluginData.js";
 
 dotenv.config();
 
 export const router = createPlaywrightRouter();
 
-router.addDefaultHandler(async ({ page, enqueueLinks, log }) => {
-  await page.waitForSelector("#header"); // wait for the header to load, used to bypass Cloudflare check
-  log.info(`enqueueing new URLs`);
+async function addPagesToQueue(
+  page: Page,
+  enqueueLinks: (
+    options: EnqueueLinksOptions
+  ) => Promise<BatchAddRequestsResult>
+) {
   await page.waitForSelector(".PageNav > nav > .scrollable > .items > a");
   const listUrls = page
     .locator(".PageNav > nav > .scrollable > .items > a")
@@ -33,36 +40,19 @@ router.addDefaultHandler(async ({ page, enqueueLinks, log }) => {
     urls: await pluginUrls,
     label: "plugin",
   });
+}
+
+router.addDefaultHandler(async ({ page, enqueueLinks, log }) => {
+  await page.waitForSelector("#header"); // wait for the header to load, used to bypass Cloudflare check
+  log.info(`enqueueing new URLs`);
+  await addPagesToQueue(page, enqueueLinks);
 });
 
 router.addHandler("list", async ({ request, page, enqueueLinks, log }) => {
   await page.waitForSelector("#header"); // wait for the header to load, used to bypass Cloudflare check
   const url = request.url;
   log.info(`enqueueing new URLs from ${url}`);
-  await page.waitForSelector(".PageNav > nav > .scrollable > .items > a");
-  const listUrls = page
-    .locator(".PageNav > nav > .scrollable > .items > a")
-    .evaluateAll((nodes: HTMLAnchorElement[]) =>
-      nodes.map((node) => node.href)
-    );
-  await page.waitForSelector(
-    ".resourceList > .resourceListItem > .main > .listBlockInner > h3.title > a"
-  );
-  const pluginUrls = page
-    .locator(
-      ".resourceList > .resourceListItem > .main > .listBlockInner > h3.title > a[href]"
-    )
-    .evaluateAll((nodes: HTMLAnchorElement[]) =>
-      nodes.map((node) => node.href)
-    );
-  await enqueueLinks({
-    urls: await listUrls,
-    label: "list",
-  });
-  await enqueueLinks({
-    urls: await pluginUrls,
-    label: "plugin",
-  });
+  await addPagesToQueue(page, enqueueLinks);
 });
 
 router.addHandler("plugin", async ({ request, page, log }) => {
@@ -78,7 +68,7 @@ router.addHandler("plugin", async ({ request, page, log }) => {
   }
 
   let id = parseInt(request.loadedUrl?.split(".")?.pop()?.slice(0, -1) ?? "-1");
-  let url = request.loadedUrl;
+  let url = request.loadedUrl ?? "";
 
   let iconUrl: string | undefined = undefined;
   if ((await page.locator(".resourceInfo>.resourceImage img").count()) > 0) {
@@ -126,8 +116,11 @@ router.addHandler("plugin", async ({ request, page, log }) => {
   let name: string = "";
   if ((await page.locator(".resourceInfo>h1").count()) > 0) {
     name =
-      (await page.locator(".resourceInfo>h1")?.first().textContent())?.trim() ??
-      "";
+      (await page
+        .locator(".resourceInfo>h1")
+        ?.evaluate((el: HTMLHeadingElement) =>
+          el.firstChild?.textContent?.trim()
+        )) ?? "";
   }
 
   let description: string = "";
@@ -289,7 +282,7 @@ router.addHandler("plugin", async ({ request, page, log }) => {
     );
   }
 
-  const object = {
+  const object: PluginData = {
     id,
     url,
     name,
@@ -309,6 +302,8 @@ router.addHandler("plugin", async ({ request, page, log }) => {
   };
 
   log.info(JSON.stringify(object, null, 2));
+
+  savePluginData(object, "/home/mble/Code/repos/pluget/repository");
 
   await Dataset.pushData({
     url: request.loadedUrl,

@@ -2,6 +2,10 @@ import * as dotenv from "dotenv";
 import { Configuration, OpenAIApi } from "openai";
 import path from "path";
 import unidecode from "unidecode";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
@@ -24,81 +28,70 @@ export default async function nameToStdName(
   previousNames: string[]
 ): Promise<string> {
   const explainPrompt = `
-Generate using title and description, a standardized name that uses only lowercase letters, dashes ("-"), and digits. If it is a duplicate, generate another name.
-
-Examples:
+Std. name, only ASCII. If duplicate, then another name. Title - T; Desc. - D; Std. name - S; Duplicate - E
 ===
-Title: MutliMasks Unlimited Different Mask Types | Create Custom Masks! | Levels | Recoded
-Description: You can create your own mask. There are various effects!, Minecraft, highly detailed, digital painting
+T: /freeze command
+D: Adds /freeze!
 
-Standardized name: multimasks
+S: freeze-command
 ===
-Title: StarItems Crafting Any Items! 100% optimization!
-Description: Crafting Any Items!
+T: ChatProtection+
+D:
 
-Standardized name: staritems
+S: chatprotectionplus
 ===
-Title: /freeze command
-Description: Adds /freeze command to the game!
+T: DDD
+D: Different Dimension Difficulty
 
-Standardized name: freeze-command
+E: ddd
+
+S: different-dimension-difficulty
 ===
-Title: ChatProtection+
-Description: Prevents chat, and command spammers, along with caps limiting.
+T: Scoreboard
+D: Plugin 1.8.8
 
-Standardized name:  chatprotectionplus
-===
-Title: KB9999
-Description: Enchant an item with Knockback 9 Thousand.
+E: scoreboard
 
-Standardized name:  kb9999
-===
-Title: DDD
-Description: Different Dimension Difficulty
-
-Standardized name:  ddd
-Is a duplicate!
-Standardized name:  different-dimension-difficulty
-===
-Title: ThisSystem v 0.1
-Description: System
-
-Standardized name:  thissystem
-===
-Title: Scoreboard
-Description: Minecraft Scoreboard Plugin 1.8.8
-
-Standardized name:  scoreboard
-Is a duplicate!
-Standardized name:   scoreboard-1-8-8
+S: scoreboard-1-8-8
 ===
 `;
   const alreadyUsedNames = previousNames.map(
-    (name) => `Standardized name: ${name}
-  Is a duplicate!
-`
+    (name) => `"${name}"` // wrap in quotes
   );
-  const prompt = `${explainPrompt}
-Title: ${name}
-Description: ${description}
 
-${alreadyUsedNames.join("")}
-Standardized name:`;
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt,
-    temperature: 0,
-    max_tokens: 1000,
-    stop: ["===", "Is a duplicate!"],
-  });
-  const stdName = response.data.choices[0].text?.trim() || "";
-  return stdName;
-}
+  let prompt = ""
+  if (alreadyUsedNames.length > 0) {
+    prompt = `${explainPrompt}
+T: ${name}
+D: ${description}
 
-if (require.main === module) {
-  nameToStdName("ThisSystem v 0.1", "System", [
-    "thissystem",
-    "scoreboard",
-    "scoreboard-1-8-8",
-  ]).then(console.log);
+E: ${alreadyUsedNames.join(", ")}
+S: `;
+  } else {
+    prompt = `${explainPrompt}
+T: ${name}
+D: ${description}
+
+S: `;
+  }
+  while (true) {
+    try {
+      let model = "ada:ft-mble:adrianna-nametostdname-v0-2-3-2022-12-28-19-19-02";
+      const response = await openai.createCompletion({
+        model,
+        prompt,
+        temperature: 0,
+        max_tokens: 1000,
+        top_p: 1,
+        frequency_penalty: 0.7,
+        presence_penalty: 0,
+        stop: ["===", "\n"],
+      });
+      const stdName = response.data.choices[0].text || "";
+      const sanitizedStdName = classicNameToStdName(stdName);
+      return sanitizedStdName;
+    } catch (error: any) {
+      console.error(error.response.status);
+    }
+  }
 }
