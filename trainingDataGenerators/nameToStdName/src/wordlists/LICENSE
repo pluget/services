@@ -1,0 +1,5 @@
+words_alpha source: https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt
+noun.csv source: https://github.com/djstrong/nouns-with-plurals
+english-adjectives english-nouns source: https://gist.github.com/hugsy/8910dc78d208e40de42deb29e62df913
+emojis.csv source: https://github.com/datasets/emojis
+java.yaml source: https://github.com/Nixinova/Minecraft-Versions
